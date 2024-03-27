@@ -1148,6 +1148,11 @@ class SQLGlotCompiler(abc.ABC):
     ) -> sg.Table:
         return sg.table(name, quoted=self.quoted)
 
+    def visit_DeferredCachedTable(
+        self, op, *, name: str, schema: sch.Schema, source, expr: Any
+    ) -> sg.Table:
+        return sg.table(name, quoted=self.quoted)
+
     def visit_DatabaseTable(
         self,
         op,

@@ -506,6 +506,7 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
 
         self._register_udfs(expr)
         self._register_in_memory_tables(expr)
+        self._register_deferred_cached_tables(expr)
 
         table_expr = expr.as_table()
         raw_sql = self.compile(table_expr, **kwargs)
@@ -670,3 +671,15 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
         ident = sg.table(name, db=db, catalog=catalog).sql(self.name)
         with self._safe_raw_sql(sge.delete(ident)):
             pass
+
+    def _cached(self, expr: ir.Table):
+        return ops.DeferredCachedTable(
+            schema=expr.schema(), name=gen_name("cache"), expr=expr, source=self
+        ).to_expr()
+
+    def _register_deferred_cached_tables(self, expr):
+        for table in expr.op().find(ops.DeferredCachedTable):
+            self._register_deferred_table(table)
+
+    def _register_deferred_table(self, op: ops.DeferredCachedTable):
+        self._load_into_cache(op.name, op.expr)

@@ -337,6 +337,14 @@ class InMemoryTable(PhysicalTable):
 
 
 @public
+class DeferredCachedTable(PhysicalTable):
+    schema: Schema
+    source: Any
+    expr: Any
+    name: str
+
+
+@public
 class SQLQueryResult(Relation):
     """A table sourced from the result set of a select query."""
 
