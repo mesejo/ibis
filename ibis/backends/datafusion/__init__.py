@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import functools
 import inspect
 import typing
 from collections.abc import Mapping
@@ -24,6 +25,7 @@ from ibis.backends import CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
 from ibis.backends.datafusion.compiler import DataFusionCompiler
 from ibis.backends.sql import SQLBackend
 from ibis.backends.sql.compiler import C
+from ibis.common.caching import RefCountedNameTable
 from ibis.expr.operations.udf import InputType
 from ibis.formats.pyarrow import PyArrowType
 from ibis.util import gen_name, normalize_filename
@@ -47,6 +49,13 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
     supports_in_memory_tables = True
     supports_arrays = True
     compiler = DataFusionCompiler()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.names_lookup = RefCountedNameTable(
+            generate_name=functools.partial(gen_name, "cache"),
+            key=lambda expr: expr.op(),
+        )
 
     @property
     def version(self):
@@ -673,8 +682,9 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
             pass
 
     def _cached(self, expr: ir.Table):
+        name = self.names_lookup.name(expr)
         return ops.DeferredCachedTable(
-            schema=expr.schema(), name=gen_name("cache"), expr=expr, source=self
+            schema=expr.schema(), name=name, expr=expr, source=self
         ).to_expr()
 
     def _register_deferred_cached_tables(self, expr):
@@ -682,4 +692,5 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
             self._register_deferred_table(table)
 
     def _register_deferred_table(self, op: ops.DeferredCachedTable):
-        self._load_into_cache(op.name, op.expr)
+        if op.name not in self.list_tables():
+            self._load_into_cache(op.name, op.expr)
