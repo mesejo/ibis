@@ -213,6 +213,7 @@ duckdb = "ibis.backends.duckdb"
 exasol = "ibis.backends.exasol"
 flink = "ibis.backends.flink"
 impala = "ibis.backends.impala"
+meta = "ibis.backends.meta"
 mysql = "ibis.backends.mysql"
 mssql = "ibis.backends.mssql"
 oracle = "ibis.backends.oracle"
@@ -351,6 +352,7 @@ markers = [
   "exasol: ExasolDB tests",
   "flink: Flink tests",
   "impala: Apache Impala tests",
+  "meta: meta tests",
   "mysql: MySQL tests",
   "mssql: MS SQL Server tests",
   "oracle: Oracle tests",
