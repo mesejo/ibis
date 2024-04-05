@@ -684,6 +684,7 @@ class Backend(SQLBackend, CanCreateCatalog, CanCreateDatabase, CanCreateSchema, 
     def _cached(self, expr: ir.Table):
         name = self.names_lookup.name(expr)
         return ops.DeferredCachedTable(
+            query="",
             schema=expr.schema(), name=name, expr=expr, source=self
         ).to_expr()
 

@@ -291,7 +291,7 @@ class Expr(Immutable, Coercible):
 
         backends = set()
         has_unbound = False
-        node_types = (ops.UnboundTable, ops.DatabaseTable, ops.SQLQueryResult, ops.DeferredCachedTable)
+        node_types = (ops.UnboundTable, ops.DatabaseTable, ops.SQLQueryResult)
         for table in self.op().find(node_types):
             if isinstance(table, ops.UnboundTable):
                 has_unbound = True

@@ -337,14 +337,6 @@ class InMemoryTable(PhysicalTable):
 
 
 @public
-class DeferredCachedTable(PhysicalTable):
-    schema: Schema
-    source: Any
-    expr: Any
-    name: str
-
-
-@public
 class SQLQueryResult(Relation):
     """A table sourced from the result set of a select query."""
 
@@ -353,6 +345,16 @@ class SQLQueryResult(Relation):
     source: Any
     values = FrozenDict()
 
+
+@public
+class DeferredCachedTable(SQLQueryResult):
+
+    query: str
+    schema: Schema
+    source: Any
+    expr: Any
+    name: str
+    values = FrozenDict()
 
 @public
 class View(PhysicalTable):

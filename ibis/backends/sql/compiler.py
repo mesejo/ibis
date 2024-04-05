@@ -1149,9 +1149,9 @@ class SQLGlotCompiler(abc.ABC):
         return sg.table(name, quoted=self.quoted)
 
     def visit_DeferredCachedTable(
-        self, op, *, name: str, schema: sch.Schema, source, expr: Any
+        self, op, *, query: str, name: str, schema: sch.Schema, source, expr: Any
     ) -> sg.Table:
-        return sg.table(name, quoted=self.quoted)
+        return self.translate(expr.op(), params={})
 
     def visit_DatabaseTable(
         self,
